@@ -2,32 +2,31 @@ use('aggregations');
 db.trips.find();
 db.trips.aggregate([
   {
-    $match: {
-      birthYear: {
-        $ne: "",
+    $group: {
+      _id: "$usertype",
+      duracaoMedia: {
+        $avg: {
+          $dateDiff: {
+            startDate: "$startTime",
+            endDate: "$stopTime",
+            unit: "hour",
+          },
+        },
       },
     },
   },
   {
-    $group: {
-      _id: null,
-      maiorAnoNascimento: {
-        $max: {
-          $toInt: "$birthYear",
-        },
-      },
-      menorAnoNascimento: {
-        $min: {
-          $toInt: "$birthYear",
-        },
-      },
+    $sort: {
+      duracaoMedia:1,
     },
   },
   {
     $project: {
       _id: 0,
-      maiorAnoNascimento: 1,
-      menorAnoNascimento: 1,
+      tipo: "$_id",
+      duracaoMedia: {
+        $round: ["$duracaoMedia", 2],
+      },
     },
   },
 ]);
