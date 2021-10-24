@@ -1,38 +1,33 @@
 use('aggregations');
-db.movies.find();
-db.movies.aggregate([
+db.trips.find();
+db.trips.aggregate([
   {
     $match: {
-      languages: "English",
+      birthYear: {
+        $ne: "",
+      },
     },
-  },
-  {
-    $unwind: "$cast"
   },
   {
     $group: {
-      _id: "$cast",
-      numeroFilmes: {
-        $sum: 1,
+      _id: null,
+      maiorAnoNascimento: {
+        $max: {
+          $toInt: "$birthYear",
+        },
       },
-      mediaIMDB: {
-        $avg: "$imdb.rating",
+      menorAnoNascimento: {
+        $min: {
+          $toInt: "$birthYear",
+        },
       },
     },
   },
   {
-    $sort: {
-      numeroFilmes: -1,
-      _id: -1,
-    },
-  },  
-  {
     $project: {
-      _id: 1,
-      numeroFilmes: 1,
-      mediaIMDB: {
-        $round: ["$mediaIMDB", 1],
-      },
+      _id: 0,
+      maiorAnoNascimento: 1,
+      menorAnoNascimento: 1,
     },
-  }
+  },
 ]);
